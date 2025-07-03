@@ -1,0 +1,24 @@
+{
+  "heroes": [
+    {
+      "id": "1070",
+      "name": "helios"
+    },
+    {
+      "id": "5971",
+      "name": "zenito"
+    },
+    {
+      "id": "1a0d",
+      "name": "hedonite"
+    },
+    {
+      "id": "e542",
+      "name": "songrit"
+    },
+    {
+      "id": "c485",
+      "name": "invincible"
+    }
+  ]
+}

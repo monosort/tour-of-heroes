@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-// Em vez do alias
 import { HeroApiService } from '@tour-of-heroes/data-access'; 
 
 @Component({

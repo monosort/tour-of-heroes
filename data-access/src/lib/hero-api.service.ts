@@ -7,6 +7,6 @@ export class HeroApiService {
   constructor() {}
 
   sayHello() {
-    console.log('HeroApiService is working!');
+    console.log('HeroApiService is working!LINK');
   }
 }

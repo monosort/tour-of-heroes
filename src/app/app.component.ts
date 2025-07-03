@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+// Em vez do alias
+import { HeroApiService } from '@tour-of-heroes/data-access'; 
 
 @Component({
   selector: 'app-root',
@@ -8,4 +10,9 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'Tour of heroes';
+  constructor(private heroApi: HeroApiService) {
+    this.heroApi.sayHello();
+  }
+
+
 }

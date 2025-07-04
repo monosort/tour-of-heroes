@@ -15,9 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tour-of-heroes/data-access": ["data-access/src/index.ts"]
+      "@tour-of-heroes/data-access": ["libs/data-access/src/index.ts"],
+      "@tour-of-heroes/standalone": ["libs/standalone/src/index.ts"]
     }
-
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -5,12 +5,11 @@ import{NestedMSGService} from '@data-access/nested';
   providedIn: 'root'
 })
 export class HeroApiService {
-  constructor(private nestedMsgService: NestedMSGService) {}
+  constructor(private nestedMsgService: NestedMSGService) {
+    this.nestedMsgService.sayGoodbye();
+  }
 
   sayHello() {
     console.log('HeroApiService is working!');
-  }
-  sayGoodbye(){
-    this.nestedMsgService.sayGoodbye();
   }
 }

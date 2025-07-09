@@ -9,7 +9,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@data-access/nested" : ["nested/src/index.ts"]
+      "@data-access/nested" : ["./nested/src/index.ts"]
     }
   },
   "files": [],

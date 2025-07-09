@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@tour-of-heroes/data-access": ["libs/data-access/src/index.ts"],
-      "@tour-of-heroes/standalone": ["libs/standalone/src/index.ts"]
+      "@tour-of-heroes/standalone": ["libs/standalone/src/index.ts"],
+      "@data-access/nested": ["libs/nested/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

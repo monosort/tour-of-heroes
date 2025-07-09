@@ -6,6 +6,6 @@ import { Injectable } from '@angular/core';
 export class NestedMSGService {
   constructor() { }
   sayGoodbye() {
-    console.log('OOPSs!');
+    console.log('OOPSss!');
   }
 }

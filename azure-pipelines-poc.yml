@@ -1,0 +1,131 @@
+# azure-pipelines.yml
+# ───────────────────────────────────────────────────────────
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  NodeVersion: '22.x'
+  publishArtifacts: false    # keep CI fast; flip to true if you want to publish
+
+stages:
+- stage: Benchmark
+  displayName: Proof-of-Concept Timing
+  jobs:
+
+  # ─────────────────────────────────────────────────────────
+  - job: FullBuild
+    displayName: Full end‑to‑end build
+    steps:
+      # always start from a clean checkout
+      - checkout: self
+        clean: true
+
+      # install Node
+      - task: UseNode@1
+        displayName: 'Use Node.js $(NodeVersion)'
+        inputs:
+          version: '$(NodeVersion)'
+
+      # install deps
+      - script: npm ci
+        workingDirectory: $(Build.SourcesDirectory)/tour-of-heroes
+        displayName: 'Install npm dependencies'
+
+      # record start time
+      - script: |
+          echo "→ [FullBuild] START $(date +'%s')"
+          START=$(date +'%s')
+        displayName: 'Record start'
+
+      # build each MFE/Lib in turn
+      - script: npx nx build 
+        displayName: 'Build tour-of-heroes'
+        condition: and(succeeded(), eq(variables.publishArtifacts, 'false'))
+        workingDirectory: $(Build.SourcesDirectory)/tour-of-heroes
+
+      # record end time & duration
+      - script: |
+          END=$(date +'%s')
+          echo "→ [FullBuild] END   $(date +'%s')"
+          echo "→ [FullBuild] DURATION $((END-START)) seconds"
+        displayName: 'Full build + timing'
+
+  # ─────────────────────────────────────────────────────────
+  - job: CachedAffected
+    displayName: Cache + Affected Build
+    dependsOn: FullBuild
+    steps:
+      - checkout: self
+        clean: true
+
+      # restore npm cache
+      - task: Cache@2
+        displayName: Restore npm cache
+        inputs:
+          key: 'npm | $(Agent.OS) | package-lock.json'
+          path: ~/.npm
+
+      # restore Nx & dist cache
+      - task: Cache@2
+        displayName: Restore Nx + dist cache
+        inputs:
+          key: |
+            nx | $(Agent.OS) | $(Build.SourceBranchName)
+            | **/nx.json | **/package-lock.json
+          restoreKeys: |
+            nx | $(Agent.OS) | develop
+            | **/nx.json | **/package-lock.json
+          path: |
+            .nx/cache
+            dist
+
+      - task: UseNode@1
+        displayName: 'Use Node.js $(NodeVersion)'
+        inputs:
+          version: '$(NodeVersion)'
+
+      - script: npm ci
+        displayName: 'Install npm dependencies'
+        workingDirectory: $(Build.SourcesDirectory)/tour-of-heroes
+
+      - script: |
+          echo "→ [CacheBuild] START $(date +'%s')"
+          START=$(date +'%s')
+
+          BASE=${SYSTEM_PULLREQUEST_TARGETBRANCH:-origin/develop}
+          HEAD=${SYSTEM_PULLREQUEST_SOURCEBRANCH:-HEAD}
+
+          PROJS=$(npx nx print-affected \
+            --target=build \
+            --base=$BASE \
+            --head=$HEAD \
+            --select=projects \
+          | grep -v '\-e2e' \
+          | tr '\n' ',' \
+          | sed 's/,$//')
+
+          if [ -z "$PROJS" ]; then
+            echo "→ No affected projects; falling back to full build"
+            npx nx run-many --target=build --all
+          else
+            npx nx run-many \
+              --target=build \
+              --projects="$PROJS" \
+              --buildLibsFromSource=false
+          fi
+
+          END=$(date +'%s')
+          echo "→ [CacheBuild] END   $(date +'%s')"
+          echo "→ [CacheBuild] DURATION $((END-START)) seconds"
+        displayName: 'Cache+Affected build & timing'
+        workingDirectory: $(Build.SourcesDirectory)/tour-of-heroes
